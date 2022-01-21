@@ -26,7 +26,6 @@ body {
   position: relative;
   height: 100%;
   list-style: none;
-  transition: transform 200ms ease;
 }
 
 .carousel_slide {
