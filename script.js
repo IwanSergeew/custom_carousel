@@ -17,11 +17,11 @@ const loopCarousels = (carousel, index) => {
         track.addEventListener('transitionend', removeZeroTransition);
     }
     const moveFromFirstToLast = () => {
-        console.log(moveFromFirstToLast);
         track.removeEventListener('transitionend', moveFromFirstToLast, false);
         const currentSlide = track.querySelector('.current_slide');
+        const lastSlide = currentSlide.parentElement.children[currentSlide.parentElement.childElementCount - 2];
         track.style.transition = '1ms';
-        moveSlide(currentSlide, currentSlide.parentElement.children[currentSlide.parentElement.childElementCount - 2]);
+        moveSlide(currentSlide, lastSlide);
         track.addEventListener('transitionend', removeZeroTransition);
     }
     const removeZeroTransition = () => {
@@ -69,17 +69,18 @@ const loopCarousels = (carousel, index) => {
     }
     // Move Slide
     const moveSlide = (current, target) => {
-        track.style.transform = 'translateX(-' + target.style.left + ')';
+        if(target.style.left[0] == '-')
+            track.style.transform = 'translateX(' + target.style.left.replace('-', '') + ')';
+        else
+            track.style.transform = 'translateX(-' + target.style.left + ')';
         current.classList.remove('current_slide');
         target.classList.add('current_slide');
 
         // If last/first element move to other end
         if(!target.nextElementSibling)
             track.addEventListener('transitionend', moveFromLastToFirst);
-        else if(!target.previousElementSibling) {
-            console.log('Pre - moveFromFirstToLast');
+        else if(!target.previousElementSibling)
             track.addEventListener('transitionend', moveFromFirstToLast);
-        }
     }
 
     const updateDots = (currentDot, targetDot) => {
