@@ -43,25 +43,27 @@ const loopCarousels = (carousel, index) => {
         }
     }
     const snapClosestAfterDrag = () => {
+        // Get current translate propperty value
         let translate = Number(track.style.transform.replace('translateX(', '').replace('px)', '')) || 0;
 
         // Dragged before first element
         if(translate > 0) {
-            moveSlide(track.querySelector('.current_slide'), track.children[track.childElementCount - 2]);
+            moveSlide(track.querySelector('.current_slide'), track.children[0]);
             if(dotsNav) {
-                const currentDot = dotsNav.querySelector('.current_slide');
-                const targetDot = dotsNav.children[dotsNav.childElementCount - 1];
-                updateDots(currentDot, targetDot);
+                updateDots(dotsNav.querySelector('.current_slide'), dotsNav.children[dotsNav.childElementCount - 1]);
             }
             return;
         }
 
+        // Convert to positive value
         if(translate < 0) translate *= -1;
 
         const count = track.childElementCount;
         let closestChild = -1;
         let closestBy = null;
+        let distance;
 
+        // Find closest slider in track
         for(let i = 0; i < count; i++) {
             distance = Number(track.children[i].style.left.replace('px', '')) - translate;
             if(distance < 0) distance *= -1;
@@ -74,20 +76,17 @@ const loopCarousels = (carousel, index) => {
 
         // Dragged after last element
         if(closestChild >= count - 1) {
-            moveSlide(track.querySelector('.current_slide'), track.children[1]);
+            moveSlide(track.querySelector('.current_slide'), track.children[count-1]);
             if(dotsNav) {
-                const currentDot = dotsNav.querySelector('.current_slide');
-                const targetDot = dotsNav.children[0];
-                updateDots(currentDot, targetDot);
+                updateDots(dotsNav.querySelector('.current_slide'), dotsNav.children[0]);
             }
             return;
         }
 
+        // Move slider
         moveSlide(track.querySelector('.current_slide'), track.children[closestChild]);
         if(dotsNav) {
-            const currentDot = dotsNav.querySelector('.current_slide');
-            const targetDot = dotsNav.children[closestChild - 1];
-            updateDots(currentDot, targetDot);
+            updateDots(dotsNav.querySelector('.current_slide'), dotsNav.children[closestChild - 1]);
         }
     }
 
@@ -99,8 +98,7 @@ const loopCarousels = (carousel, index) => {
             moveSlide(currentSlide, nextSlide);
             if(dotsNav) {
                 const currentDot = dotsNav.querySelector('.current_slide');
-                const targetDot = currentDot.nextElementSibling || currentDot.parentElement.children[0];
-                updateDots(currentDot, targetDot);
+                updateDots(currentDot, currentDot.nextElementSibling || currentDot.parentElement.children[0]);
             }
         }
     }
@@ -240,4 +238,6 @@ const loopCarousels = (carousel, index) => {
 
 }
 
-document.querySelectorAll('.carousel').forEach(loopCarousels);
+const couraselElements = document.querySelectorAll('.carousel');
+if(couraselElements.length > 0)
+    couraselElements.forEach(loopCarousels);
