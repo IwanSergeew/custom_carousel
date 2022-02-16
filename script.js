@@ -199,8 +199,10 @@ const loopCarousels = (carousel, index) => {
         track.style.transform = 'translateX(-' + slides[targetIndex].style.left + ')';
         track.addEventListener('transitionend', removeZeroTransition);
     });
-    window.addEventListener("mousemove", mouseMoveEvent);
-    window.addEventListener("mouseup", mouseUpEvent);
+    if(draggable) {
+        window.addEventListener("mousemove", mouseMoveEvent);
+        window.addEventListener("mouseup", mouseUpEvent);
+    }
 
     // Check if buttons are set and add click event
     if(nextButton)
