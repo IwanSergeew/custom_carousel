@@ -5,8 +5,13 @@ const loopCarousels = (carousel, index) => {
     const dotsNav = carousel.querySelector('.carousel_nav');
     const slides = Array.from(track.children);
     let slideWidth = slides[0].getBoundingClientRect().width;
-    let transition_speed = carousel.getAttribute('data-transition-speed');
+    let transition_speed = carousel.getAttribute('courasel-transition-speed');
+    const draggable = carousel.getAttribute('courasel-draggable');
+    let lastMousePosX = null;
+    let lastMoveTime = new Date().getTime();
+
     track.style.transition = transition_speed;
+    track.style.transform = 'translateX(0px)';
 
     // Transitionend events
     const moveFromLastToFirst = () => {
@@ -27,6 +32,63 @@ const loopCarousels = (carousel, index) => {
     const removeZeroTransition = () => {
         track.removeEventListener('transitionend', removeZeroTransition, false);
         track.style.transition = transition_speed;
+    }
+
+    // Courasel Drag function
+    const dragCourasel = (x) => {
+        const transform = track.style.transform;
+        if(transform) {
+            const px = Number(transform.replace('translateX(', '').replace('px)', '')) || 0;
+            track.style.transform = `translateX(${(px + x)}px)`;
+        }
+    }
+    const snapClosestAfterDrag = () => {
+        let translate = Number(track.style.transform.replace('translateX(', '').replace('px)', '')) || 0;
+
+        // Dragged before first element
+        if(translate > 0) {
+            moveSlide(track.querySelector('.current_slide'), track.children[track.childElementCount - 2]);
+            if(dotsNav) {
+                const currentDot = dotsNav.querySelector('.current_slide');
+                const targetDot = dotsNav.children[dotsNav.childElementCount - 1];
+                updateDots(currentDot, targetDot);
+            }
+            return;
+        }
+
+        if(translate < 0) translate *= -1;
+
+        const count = track.childElementCount;
+        let closestChild = -1;
+        let closestBy = null;
+
+        for(let i = 0; i < count; i++) {
+            distance = Number(track.children[i].style.left.replace('px', '')) - translate;
+            if(distance < 0) distance *= -1;
+            
+            if(closestBy == null || distance < closestBy) {
+                closestBy = distance;
+                closestChild = i;
+            }
+        }
+
+        // Dragged after last element
+        if(closestChild >= count - 1) {
+            moveSlide(track.querySelector('.current_slide'), track.children[1]);
+            if(dotsNav) {
+                const currentDot = dotsNav.querySelector('.current_slide');
+                const targetDot = dotsNav.children[0];
+                updateDots(currentDot, targetDot);
+            }
+            return;
+        }
+
+        moveSlide(track.querySelector('.current_slide'), track.children[closestChild]);
+        if(dotsNav) {
+            const currentDot = dotsNav.querySelector('.current_slide');
+            const targetDot = dotsNav.children[closestChild - 1];
+            updateDots(currentDot, targetDot);
+        }
     }
 
     // Move Slides Right function
@@ -82,6 +144,39 @@ const loopCarousels = (carousel, index) => {
         else if(!target.previousElementSibling)
             track.addEventListener('transitionend', moveFromFirstToLast);
     }
+    // Mouse down on track
+    const mouseDownOnSlide = (e) => {
+        let atrClass;
+        const targetSlide = e.path.find(el => {
+            atrClass = el.getAttribute('class');
+            return (atrClass && atrClass.includes('carousel_slide'));
+        });
+        if(targetSlide) {
+            e.preventDefault();
+            lastMousePosX = e.screenX;
+        }
+    }
+    // Mouse move
+    const mouseMoveEvent = (e) => {
+        if(lastMousePosX != null) {
+            e.preventDefault();
+
+            const time = new Date().getTime();
+            if(time - lastMoveTime > 50) {
+                lastMoveTime = time;
+                dragCourasel(e.screenX-lastMousePosX);
+                lastMousePosX = e.screenX;
+            }
+        }
+    }
+    // Mouse up
+    const mouseUpEvent = (e) => {
+        if(lastMousePosX != null) {
+            e.preventDefault();
+            lastMousePosX = null;
+            snapClosestAfterDrag();
+        }
+    }
 
     const updateDots = (currentDot, targetDot) => {
         currentDot.classList.remove('current_slide');
@@ -106,12 +201,23 @@ const loopCarousels = (carousel, index) => {
         track.style.transform = 'translateX(-' + slides[targetIndex].style.left + ')';
         track.addEventListener('transitionend', removeZeroTransition);
     });
+    window.addEventListener("mousemove", mouseMoveEvent);
+    window.addEventListener("mouseup", mouseUpEvent);
 
     // Check if buttons are set and add click event
     if(nextButton)
         nextButton.addEventListener('click', moveToNextSlide);
     if(prevButton)
         prevButton.addEventListener('click', moveToPrevSlide);
+    
+    // Get mouse events if draggable
+    if(draggable) {
+        track.querySelectorAll('.carousel_slide').forEach(child => {
+            child.setAttribute('draggable', 'true');
+            child.addEventListener('mousedown', mouseDownOnSlide);
+        })
+
+    }
 
     // Check if dots are set and add click event
     if(dotsNav) {
