@@ -7,6 +7,7 @@ const loopCarousels = (carousel, index) => {
     let slideWidth = slides[0].getBoundingClientRect().width;
     let transition_speed = carousel.getAttribute('courasel-transition-speed');
     const draggable = carousel.getAttribute('courasel-draggable');
+    const drag_sens = parseFloat(carousel.getAttribute('courasel-drag-sens') || 1.5);
     let lastMousePosX = null;
     let lastMoveTime = new Date().getTime();
 
@@ -162,7 +163,7 @@ const loopCarousels = (carousel, index) => {
             const time = new Date().getTime();
             if(time - lastMoveTime > 50) {
                 lastMoveTime = time;
-                dragCourasel(e.screenX-lastMousePosX);
+                dragCourasel((e.screenX-lastMousePosX)*drag_sens);
                 lastMousePosX = e.screenX;
             }
         }
