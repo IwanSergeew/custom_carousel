@@ -128,6 +128,7 @@ const loopCarousels = (carousel, index) => {
     const copyFirst = track.children[0].cloneNode(true);
     const copyLast = track.children[track.childElementCount - 1].cloneNode(true);
     copyFirst.style.left = slideWidth * track.childElementCount + 'px';
+    copyFirst.classList.remove('current_slide');
     copyLast.style.left = slideWidth * -1 + 'px';
     track.append(copyFirst);
     track.prepend(copyLast);
