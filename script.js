@@ -7,9 +7,11 @@ const loopCarousels = (carousel, index) => {
     let slideWidth = slides[0].getBoundingClientRect().width;
     let transition_speed = carousel.getAttribute('courasel-transition-speed');
     const draggable = carousel.getAttribute('courasel-draggable');
+    const autoScroll = carousel.getAttribute('auto-scroll');
     const drag_sens = parseFloat(carousel.getAttribute('courasel-drag-sens') || 1.5);
     let lastMousePosX = null;
     let lastMoveTime = new Date().getTime();
+    let autoScrollTimeOut;
 
     track.style.transition = transition_speed;
     track.style.transform = 'translateX(0px)';
@@ -130,6 +132,7 @@ const loopCarousels = (carousel, index) => {
     }
     // Move Slide
     const moveSlide = (current, target) => {
+        clearTimeout(autoScrollTimeOut);
         if(target.style.left[0] == '-')
             track.style.transform = 'translateX(' + target.style.left.replace('-', '') + ')';
         else
@@ -142,9 +145,12 @@ const loopCarousels = (carousel, index) => {
             track.addEventListener('transitionend', moveFromLastToFirst);
         else if(!target.previousElementSibling)
             track.addEventListener('transitionend', moveFromFirstToLast);
+        
+        setAutoScrollTimeout();
     }
     // Mouse down on track
     const mouseDownOnSlide = (e) => {
+        clearTimeout(autoScrollTimeOut);
         let atrClass;
         const targetSlide = e.path.find(el => {
             atrClass = el.getAttribute('class');
@@ -159,6 +165,11 @@ const loopCarousels = (carousel, index) => {
     const mouseMoveEvent = (e) => {
         if(lastMousePosX != null) {
             e.preventDefault();
+
+            if(!e.target.parentElement.classList.contains('carousel_slide')) {
+                mouseUpEvent(e);
+                return;
+            }
 
             const time = new Date().getTime();
             if(time - lastMoveTime > 50) {
@@ -187,6 +198,21 @@ const loopCarousels = (carousel, index) => {
         slide.style.left = slideWidth * index + 'px';
     }
     slides.forEach(setSlidesPosition);
+
+    const autoScrollFunc = () => {
+        const currentSlide = track.querySelector('.current_slide');
+        const currentDot = dotsNav.querySelector('.current_slide');
+        const targetSlide = currentSlide.nextElementSibling || track.children[1];
+        const targetDot = currentDot.nextElementSibling || dotsNav.children[0];
+        moveSlide(currentSlide, targetSlide);
+        updateDots(currentDot, targetDot);
+    }
+
+    const setAutoScrollTimeout = () => {
+        if(autoScroll) {
+            autoScrollTimeOut = setTimeout(autoScrollFunc, (autoScroll * 1000))
+        }
+    }
     
     // Update slides width and position on window resize
     window.addEventListener("resize", (e) => {
@@ -217,7 +243,6 @@ const loopCarousels = (carousel, index) => {
             child.setAttribute('draggable', 'true');
             child.addEventListener('mousedown', mouseDownOnSlide);
         })
-
     }
 
     // Check if dots are set and add click event
@@ -240,6 +265,7 @@ const loopCarousels = (carousel, index) => {
     track.append(copyFirst);
     track.prepend(copyLast);
 
+    setAutoScrollTimeout();
 }
 
 const couraselElements = document.querySelectorAll('.carousel');
