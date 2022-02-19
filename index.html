@@ -9,7 +9,56 @@
     <script src="script.js" defer></script>
 </head>
 <body>
-    <div class="carousel" data-transition-speed="300ms">
+    <h1>Courasels</h1>
+    <br>
+    <h2>Dots + Arrows [Left/Right] + Drag</h2>
+    <div
+    class="carousel"
+    courasel-transition-speed="300ms"
+    courasel-draggable="true"
+    courasel-drag-sens="1.5">
+        <div class="carousel_container">
+            <ul class="carousel_track">
+                <li class="carousel_slide current_slide">
+                    <img src="img/1.jpg" alt="Image 1">
+                </li>
+                <li class="carousel_slide">
+                    <img src="img/2.jpg" alt="Image 2">
+                </li>
+                <li class="carousel_slide">
+                    <img src="img/3.jpg" alt="Image 3">
+                </li>
+                <li class="carousel_slide">
+                    <img src="img/4.jpg" alt="Image 4">
+                </li>
+                <li class="carousel_slide">
+                    <img src="img/5.jpg" alt="Image 5">
+                </li>
+                <li class="carousel_slide">
+                    <img src="img/6.jpg" alt="Image 6">
+                </li>
+                <li class="carousel_slide">
+                    <img src="img/7.jpg" alt="Image 7">
+                </li>
+                <li class="carousel_slide">
+                    <img src="img/8.jpg" alt="Image 8">
+                </li>
+            </ul>
+        </div>
+
+        <button class="carousel_button carousel_button-left"><</button>
+
+        <button class="carousel_button carousel_button-right">></button>
+
+        <div class="carousel_nav"></div>
+    </div>
+
+    <br/><br/>
+    
+    <h2>Dots + Arrows [Left/Right]</h2>
+    <div
+    class="carousel"
+    courasel-transition-speed="300ms">
         <div class="carousel_container">
             <ul class="carousel_track">
                 <li class="carousel_slide current_slide">
@@ -48,7 +97,8 @@
 
     <br/><br/>
 
-    <div class="carousel" data-transition-speed="300ms">
+    <h2>Dots Only</h2>
+    <div class="carousel" courasel-transition-speed="300ms">
         <div class="carousel_container">
             <ul class="carousel_track">
                 <li class="carousel_slide current_slide">
@@ -83,7 +133,8 @@
 
     <br/><br/>
 
-    <div class="carousel" data-transition-speed="300ms">
+    <h2>Arrows [Left/Right] Only</h2>
+    <div class="carousel" courasel-transition-speed="300ms">
         <div class="carousel_container">
             <ul class="carousel_track">
                 <li class="carousel_slide current_slide">
