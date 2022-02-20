@@ -166,16 +166,19 @@ const loopCarousels = (carousel, index) => {
         if(lastMousePosX != null) {
             e.preventDefault();
 
-            if(!e.target.parentElement.classList.contains('carousel_slide')) {
-                mouseUpEvent(e);
-                return;
-            }
-
             const time = new Date().getTime();
             if(time - lastMoveTime > 50) {
-                lastMoveTime = time;
-                dragCourasel((e.screenX-lastMousePosX)*drag_sens);
-                lastMousePosX = e.screenX;
+                let el = e.target;
+                while(el = el.parentElement) {
+                    if(el.classList.contains('carousel_slide')) {
+                        lastMoveTime = time;
+                        dragCourasel((e.screenX-lastMousePosX)*drag_sens);
+                        lastMousePosX = e.screenX;
+                        return;
+                    }
+                }
+
+                mouseUpEvent(e);
             }
         }
     }
