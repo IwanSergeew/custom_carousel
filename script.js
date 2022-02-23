@@ -6,11 +6,12 @@ const loopCarousels = (carousel, index) => {
     const slides = Array.from(track.children);
     let slideWidth = slides[0].getBoundingClientRect().width;
     let transition_speed = carousel.getAttribute('courasel-transition-speed');
-    const draggable = carousel.getAttribute('courasel-draggable');
-    const autoScroll = carousel.getAttribute('auto-scroll');
-    const drag_sens = parseFloat(carousel.getAttribute('courasel-drag-sens') || 1.5);
+    const draggable = carousel.getAttribute('courasel-draggable') !== null ? true : false;
+    const autoScroll = carousel.getAttribute('courasel-auto-scroll');
+    const dragSens = parseFloat(carousel.getAttribute('courasel-drag-sens') || 1.5);
+    const loop = carousel.getAttribute('courasel-loop') !== null ? true : false;
+    const perPageItems = parseFloat(carousel.getAttribute('courasel-per-page') || 1);
     let lastMousePosX = null;
-    let lastMoveTime = new Date().getTime();
     let autoScrollTimeOut;
 
     track.style.transition = transition_speed;
@@ -140,11 +141,13 @@ const loopCarousels = (carousel, index) => {
         current.classList.remove('current_slide');
         target.classList.add('current_slide');
 
-        // If last/first element move to other end
-        if(!target.nextElementSibling)
-            track.addEventListener('transitionend', moveFromLastToFirst);
-        else if(!target.previousElementSibling)
-            track.addEventListener('transitionend', moveFromFirstToLast);
+        if(loop) {
+            // If last/first element move to other end
+            if(!target.nextElementSibling)
+                track.addEventListener('transitionend', moveFromLastToFirst);
+            else if(!target.previousElementSibling)
+                track.addEventListener('transitionend', moveFromFirstToLast);
+        }
         
         setAutoScrollTimeout();
     }
@@ -158,6 +161,7 @@ const loopCarousels = (carousel, index) => {
         });
         if(targetSlide) {
             e.preventDefault();
+            track.style.transition = '1ms';
             lastMousePosX = e.screenX;
         }
     }
@@ -166,20 +170,16 @@ const loopCarousels = (carousel, index) => {
         if(lastMousePosX != null) {
             e.preventDefault();
 
-            const time = new Date().getTime();
-            if(time - lastMoveTime > 50) {
-                let el = e.target;
-                while(el = el.parentElement) {
-                    if(el.classList.contains('carousel_slide')) {
-                        lastMoveTime = time;
-                        dragCourasel((e.screenX-lastMousePosX)*drag_sens);
-                        lastMousePosX = e.screenX;
-                        return;
-                    }
+            let el = e.target;
+            while(el = el.parentElement) {
+                if(el.classList.contains('carousel_slide')) {
+                    dragCourasel((e.screenX-lastMousePosX)*dragSens);
+                    lastMousePosX = e.screenX;
+                    return;
                 }
-
-                mouseUpEvent(e);
             }
+
+            mouseUpEvent(e);
         }
     }
     // Mouse up
@@ -187,6 +187,7 @@ const loopCarousels = (carousel, index) => {
         if(lastMousePosX != null) {
             e.preventDefault();
             lastMousePosX = null;
+            removeZeroTransition();
             snapClosestAfterDrag();
         }
     }
@@ -229,10 +230,6 @@ const loopCarousels = (carousel, index) => {
         track.style.transform = 'translateX(-' + slides[targetIndex].style.left + ')';
         track.addEventListener('transitionend', removeZeroTransition);
     });
-    if(draggable) {
-        window.addEventListener("mousemove", mouseMoveEvent);
-        window.addEventListener("mouseup", mouseUpEvent);
-    }
 
     // Check if buttons are set and add click event
     if(nextButton)
@@ -242,6 +239,8 @@ const loopCarousels = (carousel, index) => {
     
     // Get mouse events if draggable
     if(draggable) {
+        window.addEventListener("mousemove", mouseMoveEvent);
+        window.addEventListener("mouseup", mouseUpEvent);
         track.querySelectorAll('.carousel_slide').forEach(child => {
             child.setAttribute('draggable', 'true');
             child.addEventListener('mousedown', mouseDownOnSlide);
@@ -260,13 +259,48 @@ const loopCarousels = (carousel, index) => {
         dotsNav.addEventListener('click', dotNavClick);
     }
 
-    const copyFirst = track.children[0].cloneNode(true);
-    const copyLast = track.children[track.childElementCount - 1].cloneNode(true);
-    copyFirst.style.left = slideWidth * track.childElementCount + 'px';
-    copyFirst.classList.remove('current_slide');
-    copyLast.style.left = slideWidth * -1 + 'px';
-    track.append(copyFirst);
-    track.prepend(copyLast);
+    if(loop) {
+        let count = track.childElementCount;
+        let loops = 1;
+        if(perPageItems) {
+            if(count > (perPageItems * 3))
+                count = (perPageItems * 3);
+            else {
+                loops = Math.floor((perPageItems * 3) / count);
+            }
+        }
+        else if(count > 3) count = 3;
+
+        const trackClone = track.cloneNode(true);
+        let firstChild;
+        let copy;
+        for(let l = 0; l < loops; l++) {
+            for(let i = 0; i < count; i++) {
+                copy = trackClone.children[i].cloneNode(true);
+                copy.classList.remove('current_slide');
+                copy.style.left = (slideWidth * (count+(i*(l+1))+1)) + 'px';
+                track.append(copy);
+            }
+        }
+        for(let l = 0; l < loops; l++) {
+            firstChild = track.children[0];
+            for(let i = count - 1; i >= 0; i--) {
+                copy = trackClone.children[count - 1 - i].cloneNode(true);
+                copy.classList.remove('current_slide');
+                copy.style.left = (slideWidth * (-1* ((i*(l+1))+1))) + 'px'; // make this
+                track.insertBefore(copy, firstChild);
+            }
+        }
+        
+        /* const copyFirst = track.children[0].cloneNode(true);
+        const copyLast = track.children[track.childElementCount - 1].cloneNode(true);
+        copyFirst.style.left = slideWidth * track.childElementCount + 'px';
+        copyFirst.classList.remove('current_slide');
+        copyFirst.classList.add('carousel_copy');
+        copyLast.style.left = slideWidth * -1 + 'px';
+        track.append(copyFirst);
+        track.prepend(copyLast); */
+    }
 
     setAutoScrollTimeout();
 }
