@@ -1,5 +1,6 @@
 const loopCarousels = (carousel, index) => {
     const track = carousel.querySelector('.carousel_track');
+    const trackClone = track.cloneNode(true);
     const nextButton = carousel.querySelector('.carousel_button-right');
     const prevButton = carousel.querySelector('.carousel_button-left');
     const dotsNav = carousel.querySelector('.carousel_nav');
@@ -151,6 +152,51 @@ const loopCarousels = (carousel, index) => {
         
         setAutoScrollTimeout();
     }
+
+    // Remove All Track Copies
+    const removeAllCopies = () => {
+        const sliderCopies = track.querySelectorAll('.carousel_copy');
+        for(let copy in sliderCopies) {
+            track.remove(copy);
+        }
+    }
+
+    // Generate New Track Copies
+    const generateNewCopies = () => {
+        let count = track.childElementCount;
+        let loops = 1;
+        if(perPageItems) {
+            if(count > (perPageItems * 2))
+                count = (perPageItems * 2);
+            else {
+                loops = Math.floor((perPageItems * 2) / count);
+            }
+        }
+        else if(count > 3) count = 3;
+
+        let firstChild;
+        let copy;
+        for(let l = 0; l < loops; l++) {
+            for(let i = 0; i < count; i++) {
+                copy = trackClone.children[i].cloneNode(true);
+                copy.classList.remove('current_slide');
+                copy.classList.add('carousel_copy');
+                copy.style.left = (slideWidth * ((i+1) + ((l+1)*count))) + 'px';
+                track.append(copy);
+            }
+        }
+        for(let l = 0; l < loops; l++) {
+            firstChild = track.children[0];
+            for(let i = count - 1; i >= 0; i--) {
+                copy = trackClone.children[count - 1 - i].cloneNode(true);
+                copy.classList.remove('current_slide');
+                copy.classList.add('carousel_copy');
+                copy.style.left = (slideWidth * (-1* ((i+1) + (l*count))) ) + 'px';
+                track.insertBefore(copy, firstChild);
+            }
+        }
+    }
+
     // Mouse down on track
     const mouseDownOnSlide = (e) => {
         clearTimeout(autoScrollTimeOut);
@@ -260,46 +306,8 @@ const loopCarousels = (carousel, index) => {
     }
 
     if(loop) {
-        let count = track.childElementCount;
-        let loops = 1;
-        if(perPageItems) {
-            if(count > (perPageItems * 3))
-                count = (perPageItems * 3);
-            else {
-                loops = Math.floor((perPageItems * 3) / count);
-            }
-        }
-        else if(count > 3) count = 3;
-
-        const trackClone = track.cloneNode(true);
-        let firstChild;
-        let copy;
-        for(let l = 0; l < loops; l++) {
-            for(let i = 0; i < count; i++) {
-                copy = trackClone.children[i].cloneNode(true);
-                copy.classList.remove('current_slide');
-                copy.style.left = (slideWidth * (count+(i*(l+1))+1)) + 'px';
-                track.append(copy);
-            }
-        }
-        for(let l = 0; l < loops; l++) {
-            firstChild = track.children[0];
-            for(let i = count - 1; i >= 0; i--) {
-                copy = trackClone.children[count - 1 - i].cloneNode(true);
-                copy.classList.remove('current_slide');
-                copy.style.left = (slideWidth * (-1* ((i*(l+1))+1))) + 'px'; // make this
-                track.insertBefore(copy, firstChild);
-            }
-        }
-        
-        /* const copyFirst = track.children[0].cloneNode(true);
-        const copyLast = track.children[track.childElementCount - 1].cloneNode(true);
-        copyFirst.style.left = slideWidth * track.childElementCount + 'px';
-        copyFirst.classList.remove('current_slide');
-        copyFirst.classList.add('carousel_copy');
-        copyLast.style.left = slideWidth * -1 + 'px';
-        track.append(copyFirst);
-        track.prepend(copyLast); */
+        removeAllCopies();
+        generateNewCopies();
     }
 
     setAutoScrollTimeout();
