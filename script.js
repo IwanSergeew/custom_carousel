@@ -19,21 +19,6 @@ const loopCarousels = (carousel, index) => {
     track.style.transform = 'translateX(0px)';
 
     // Transitionend events
-    const moveFromLastToFirst = () => {
-        track.removeEventListener('transitionend', moveFromLastToFirst, false);
-        const currentSlide = track.querySelector('.current_slide');
-        track.style.transition = '1ms';
-        moveSlide(currentSlide, currentSlide.parentElement.children[1]);
-        track.addEventListener('transitionend', removeZeroTransition);
-    }
-    const moveFromFirstToLast = () => {
-        track.removeEventListener('transitionend', moveFromFirstToLast, false);
-        const currentSlide = track.querySelector('.current_slide');
-        const lastSlide = currentSlide.parentElement.children[currentSlide.parentElement.childElementCount - 2];
-        track.style.transition = '1ms';
-        moveSlide(currentSlide, lastSlide);
-        track.addEventListener('transitionend', removeZeroTransition);
-    }
     const removeZeroTransition = () => {
         track.removeEventListener('transitionend', removeZeroTransition, false);
         track.style.transition = transition_speed;
@@ -142,13 +127,8 @@ const loopCarousels = (carousel, index) => {
         current.classList.remove('current_slide');
         target.classList.add('current_slide');
 
-        if(loop) {
-            // If last/first element move to other end
-            if(!target.nextElementSibling)
-                track.addEventListener('transitionend', moveFromLastToFirst);
-            else if(!target.previousElementSibling)
-                track.addEventListener('transitionend', moveFromFirstToLast);
-        }
+        if(loop)
+            generateNewCopies();
         
         setAutoScrollTimeout();
     }
@@ -156,13 +136,18 @@ const loopCarousels = (carousel, index) => {
     // Remove All Track Copies
     const removeAllCopies = () => {
         const sliderCopies = track.querySelectorAll('.carousel_copy');
-        for(let copy in sliderCopies) {
-            track.remove(copy);
+        if(sliderCopies.length > 0) {
+            sliderCopies.forEach(copy => {
+                copy.remove();
+            })
         }
     }
 
     // Generate New Track Copies
     const generateNewCopies = () => {
+        
+        removeAllCopies();
+
         let count = track.childElementCount;
         let loops = 1;
         if(perPageItems) {
@@ -305,10 +290,8 @@ const loopCarousels = (carousel, index) => {
         dotsNav.addEventListener('click', dotNavClick);
     }
 
-    if(loop) {
-        removeAllCopies();
+    if(loop)
         generateNewCopies();
-    }
 
     setAutoScrollTimeout();
 }
