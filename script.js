@@ -19,6 +19,21 @@ const loopCarousels = (carousel, index) => {
     track.style.transform = 'translateX(0px)';
 
     // Transitionend events
+    const moveFromLastToFirst = () => {
+        track.removeEventListener('transitionend', moveFromLastToFirst, false);
+        const currentSlide = track.querySelector('.current_slide');
+        track.style.transition = '1ms';
+        moveSlide(currentSlide, track.querySelectorAll('li:not(.carousel_copy)')[0]);
+        track.addEventListener('transitionend', removeZeroTransition);
+    }
+    const moveFromFirstToLast = () => {
+        track.removeEventListener('transitionend', moveFromFirstToLast, false);
+        const currentSlide = track.querySelector('.current_slide');
+        const lastSlide = currentSlide.parentElement.children[currentSlide.parentElement.childElementCount - 2];
+        track.style.transition = '1ms';
+        moveSlide(currentSlide, lastSlide);
+        track.addEventListener('transitionend', removeZeroTransition);
+    }
     const removeZeroTransition = () => {
         track.removeEventListener('transitionend', removeZeroTransition, false);
         track.style.transition = transition_speed;
@@ -120,15 +135,23 @@ const loopCarousels = (carousel, index) => {
     // Move Slide
     const moveSlide = (current, target) => {
         clearTimeout(autoScrollTimeOut);
+        
+        current.classList.remove('current_slide');
+        target.classList.add('current_slide');
+
         if(target.style.left[0] == '-')
             track.style.transform = 'translateX(' + target.style.left.replace('-', '') + ')';
         else
             track.style.transform = 'translateX(-' + target.style.left + ')';
-        current.classList.remove('current_slide');
-        target.classList.add('current_slide');
 
-        if(loop)
+        if(loop) {
+            // If last/first element move to other end
+            if(target.classList.contains('carousel_copy'))
+                track.addEventListener('transitionend', moveFromLastToFirst);
+            else if(!target.previousElementSibling || target.previousElementSibling.classList.contains('.carousel_copy'))
+                track.addEventListener('transitionend', moveFromFirstToLast);
             generateNewCopies();
+        }
         
         setAutoScrollTimeout();
     }
@@ -151,8 +174,8 @@ const loopCarousels = (carousel, index) => {
         let count = track.childElementCount;
         let loops = 1;
         if(perPageItems) {
-            if(count > (perPageItems * 2))
-                count = (perPageItems * 2);
+            if(count > perPageItems)
+                count = perPageItems;
             else {
                 loops = Math.floor((perPageItems * 2) / count);
             }
