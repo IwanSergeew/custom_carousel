@@ -1,7 +1,5 @@
 
-# Javascript/PHP/MySQL DataTable
-
-Vanilla Javascript DataTable using PHP as back end to fetch data from MySQL.
+# Custom Carousel
 
 ## Usage/Examples
 
