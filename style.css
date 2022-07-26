@@ -15,34 +15,26 @@ h2 {
 
 .carousel {
   position: relative;
-  height: 400px;
   width: 80%;
   margin: 0 auto;
 }
 
-.carousel_container {
+.carousel > .carousel_container {
   position: relative;
   height: 100%;
   overflow: hidden;
 }
 
-.carousel_track {
+.carousel > .carousel_container > ul.carousel_track {
   position: relative;
   height: 100%;
   list-style: none;
 }
 
-.carousel_slide {
+.carousel > .carousel_container > ul.carousel_track > li.carousel_slide {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 100%;
-}
-
-.carousel_slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .carousel_button {
