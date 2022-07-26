@@ -40,14 +40,18 @@
             transitionSpeed: 300,
             draggable: true,
             dragSens: 1.5,
+            snapOnDrag: false,
             loop: true,
-            perPage: 2
+            perPage: 4,
+            autoScroll: 0
         })
     </script>
 </body>
 ```
 
 ## Screenshots
+
+![App Screenshot](https://gcdnb.pbrd.co/images/bSej5eSOzPae.gif?o=1)
 
 ![App Screenshot](https://gcdnb.pbrd.co/images/r3R6SDRcYKOS.gif?o=1)
 
