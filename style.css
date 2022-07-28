@@ -13,10 +13,19 @@ h2 {
   margin: 1rem;
 }
 
+.container {
+  height: 500px;
+}
+
 .carousel {
   position: relative;
   width: 80%;
   margin: 0 auto;
+  height: 100%;
+}
+
+.carousel.dragging a {
+  pointer-events: none;
 }
 
 .carousel > .carousel_container {
@@ -35,6 +44,10 @@ h2 {
   position: absolute;
   top: 0;
   bottom: 0;
+}
+
+.carousel > .carousel_container > ul.carousel_track > li.carousel_slide img {
+  width: 100%;
 }
 
 .carousel_button {

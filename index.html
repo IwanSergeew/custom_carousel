@@ -10,31 +10,31 @@
 </head>
 <body>
     <h1>Carousel</h1>
-    <div
-    class="carousel"
-    id="carousel">
-        <div class="carousel_container">
-            <ul class="carousel_track">
-                <li class="carousel_slide current_slide">
-                    <img src="img/1.jpg" alt="Image 1">
-                </li>
-                <li class="carousel_slide">
-                    <img src="img/2.jpg" alt="Image 2">
-                </li>
-                <li class="carousel_slide">
-                    <img src="img/3.jpg" alt="Image 3">
-                </li>
-                <li class="carousel_slide">
-                    <img src="img/4.jpg" alt="Image 4">
-                </li>
-            </ul>
+    <div class="container">
+        <div class="carousel" id="carousel">
+            <div class="carousel_container">
+                <ul class="carousel_track">
+                    <li class="carousel_slide current_slide">
+                        <img src="img/1.jpg" alt="Image 1">
+                    </li>
+                    <li class="carousel_slide">
+                        <img src="img/2.jpg" alt="Image 2">
+                    </li>
+                    <li class="carousel_slide">
+                        <img src="img/3.jpg" alt="Image 3">
+                    </li>
+                    <li class="carousel_slide">
+                        <img src="img/4.jpg" alt="Image 4">
+                    </li>
+                </ul>
+            </div>
+    
+            <button class="carousel_button carousel_button-left"><</button>
+    
+            <button class="carousel_button carousel_button-right">></button>
+    
+            <div class="carousel_nav"></div>
         </div>
-
-        <button class="carousel_button carousel_button-left"><</button>
-
-        <button class="carousel_button carousel_button-right">></button>
-
-        <div class="carousel_nav"></div>
     </div>
 
     <script>
@@ -42,9 +42,10 @@
             selector: '#carousel',
             transitionSpeed: 300,
             draggable: true,
+            snapOnDrag: true,
             dragSens: 1.5,
             loop: true,
-            perPage: 2
+            perPage: 1
         })
     </script>
 </body>
