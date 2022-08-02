@@ -39,10 +39,10 @@ class Carousel {
         
         // Get mouse events if draggable
         if(draggable) {
-            window.addEventListener("mousemove", this.mouseMoveEvent);
-            window.addEventListener("mouseup", this.mouseUpEvent);
+            this.track.addEventListener('pointerdown', this.pointerDownOnSlide);
+            this.track.addEventListener("pointermove", this.pointerMoveEvent);
+            this.track.addEventListener("pointerup", this.pointerUpEvent);
             this.track.setAttribute('draggable', 'true');
-            this.carousel.addEventListener('mousedown', this.mouseDownOnSlide);
         }
 
         this.setPerPageAmount();
@@ -234,10 +234,12 @@ class Carousel {
     }
 
     // Mouse down on track
-    mouseDownOnSlide = (e) => {
+    pointerDownOnSlide = (e) => {
         clearTimeout(this.autoScrollTimeOut);
         this.autoScrollTimeOut = null;
         e.preventDefault();
+
+        this.track.setPointerCapture(e.pointerId);
 
         if(this.loadingBar) {
             const computedStyle = window.getComputedStyle(this.loadingBar);
@@ -249,14 +251,9 @@ class Carousel {
         this.lastMousePosX = e.screenX;
     }
     // Mouse move
-    mouseMoveEvent = (e) => {
+    pointerMoveEvent = (e) => {
         if(this.lastMousePosX != null) {
             e.preventDefault();
-
-            if(!e.target.classList.contains('carousel_container') && !e.target.closest('.carousel_container')) {
-                this.mouseUpEvent(e);
-                return;
-            }
             
             const amount = (e.screenX - this.lastMousePosX) * this.dragSens;
             const translateX = this.convertTranslateX(this.track.style.transform);
@@ -267,7 +264,8 @@ class Carousel {
         }
     }
     // Mouse up
-    mouseUpEvent = (e) => {
+    pointerUpEvent = (e) => {
+        this.track.releasePointerCapture(e.pointerId);
         if(this.lastMousePosX != null) {
             e.preventDefault();
             this.lastMousePosX = null;
